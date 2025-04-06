@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>PHP CRUD using AJAX & Bootstrap</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<div class="container mt-5">
+    <div class="card shadow-lg rounded-4">
+        <div class="card-header bg-primary text-white text-center">
+            <h4 class="mb-0">PHP CRUD using AJAX & Bootstrap</h4>
+        </div>
+        <div class="card-body">
+            <div class="text-end mb-3">
+                <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addModal">+ Add User</button>
+            </div>
+            <div id="message"></div>
+            <div id="userTable"></div>
+        </div>
+    </div>
+</div>
+
+<!-- Add Modal -->
+<div class="modal fade" id="addModal" tabindex="-1">
+  <div class="modal-dialog">
+    <form id="addForm" class="modal-content needs-validation" novalidate>
+      <div class="modal-header bg-success text-white">
+        <h5 class="modal-title">Add User</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="text" name="name" class="form-control mb-3" placeholder="Name" required>
+        <input type="email" name="email" class="form-control mb-3" placeholder="Email" required>
+        <input type="text" name="mobile" class="form-control mb-3" placeholder="Mobile" required>
+        <input type="text" name="location" class="form-control mb-3" placeholder="Location" required>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-success w-100">Add User</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editModal" tabindex="-1">
+  <div class="modal-dialog">
+    <form id="editForm" class="modal-content">
+      <div class="modal-header bg-warning text-dark">
+        <h5 class="modal-title">Edit User</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" name="id" id="edit-id">
+        <input type="text" name="name" id="edit-name" class="form-control mb-3" required>
+        <input type="email" name="email" id="edit-email" class="form-control mb-3" required>
+        <input type="text" name="mobile" id="edit-mobile" class="form-control mb-3" required>
+        <input type="text" name="location" id="edit-location" class="form-control mb-3" required>
+      </div>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-warning w-100">Update User</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+function loadData() {
+    $.get("fetch.php", function(data) {
+        $("#userTable").html(data);
+    });
+}
+
+$(document).ready(function() {
+    loadData();
+
+    $("#addForm").on("submit", function(e) {
+        e.preventDefault();
+        $.post("insert.php", $(this).serialize(), function(response) {
+            $("#message").html(response);
+            $("#addModal").modal("hide");
+            $("#addForm")[0].reset();
+            loadData();
+        });
+    });
+
+    $(document).on("click", ".editBtn", function() {
+        $("#edit-id").val($(this).data("id"));
+        $("#edit-name").val($(this).data("name"));
+        $("#edit-email").val($(this).data("email"));
+        $("#edit-mobile").val($(this).data("mobile"));
+        $("#edit-location").val($(this).data("location"));
+        $("#editModal").modal("show");
+    });
+
+    $("#editForm").on("submit", function(e) {
+        e.preventDefault();
+        $.post("update.php", $(this).serialize(), function(response) {
+            $("#message").html(response);
+            $("#editModal").modal("hide");
+            loadData();
+        });
+    });
+
+    $(document).on("click", ".deleteBtn", function() {
+        if (confirm("Are you sure to delete this user?")) {
+            $.post("delete.php", { id: $(this).data("id") }, function(response) {
+                $("#message").html(response);
+                loadData();
+            });
+        }
+    });
+});
+</script>
+</body>
+</html>
